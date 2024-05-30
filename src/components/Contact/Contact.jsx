@@ -1,23 +1,24 @@
-import { HiUser } from "react-icons/hi";
-import { HiPhone } from "react-icons/hi";
+import { useDispatch } from 'react-redux';
+import { deleteContact } from '../../redux/contactsSlice';
+import { HiUser, HiPhone } from 'react-icons/hi';
 import style from './Contact.module.css';
 
-const Contact = ({ contact, onDelete }) => {
-    const { name, number } = contact;
+const Contact = ({ contact }) => {
+  const dispatch = useDispatch();
 
-    const handleDelete = () => {
-        onDelete(contact.id);
-    };
+  const handleDelete = () => {
+    dispatch(deleteContact(contact.id));
+  };
 
-    return (
-        <div className={style.container}>
-            <div>
-                <div className={style.info}><HiUser className={style.icon} />{name}</div>
-                <div className={style.info}><HiPhone className={style.icon} />{number}</div> 
-            </div>
-            <button className={style.button} onClick={handleDelete}>Delete</button>
-        </div>
-    );
-}
+  return (
+    <div className={style.container}>
+      <div>
+        <div className={style.info}><HiUser className={style.icon} />{contact.name}</div>
+        <div className={style.info}><HiPhone className={style.icon} />{contact.number}</div>
+      </div>
+      <button className={style.button} onClick={handleDelete}>Delete</button>
+    </div>
+  );
+};
 
 export default Contact;
