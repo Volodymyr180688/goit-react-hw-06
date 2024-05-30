@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +8,8 @@ import style from './ContactForm.module.css';
 const ContactForm = () => {
   const dispatch = useDispatch();
   const contacts = useSelector(selectContacts);
+
+  const [formattedNumber, setFormattedNumber] = useState('');
 
   const initialValues = {
     name: '',
@@ -22,8 +25,24 @@ const ContactForm = () => {
       .matches(/^\d{0,3}-?\d{0,2}-?\d{0,2}$/, 'Invalid phone number format'),
   });
 
+  const formatPhoneNumber = (value) => {
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const match = phoneNumber.match(/^(\d{0,3})(\d{0,2})(\d{0,2})$/);
+    if (match) {
+      return match.slice(1).filter(Boolean).join('-');
+    }
+    return '';
+  };
+
+  const handleChange = (event, formikProps) => {
+    const { value } = event.target;
+    const formatted = formatPhoneNumber(value);
+    setFormattedNumber(formatted);
+    formikProps.setFieldValue('number', formatted);
+  };
+
   const handleSubmit = (values, { resetForm }) => {
-    const isDuplicate = contacts.some(contact => 
+    const isDuplicate = contacts.some(contact =>
       contact.name === values.name && contact.number === values.number
     );
 
@@ -32,6 +51,7 @@ const ContactForm = () => {
     } else {
       dispatch(addContact(values));
       resetForm();
+      setFormattedNumber(''); // Reset the formatted number
     }
   };
 
@@ -50,7 +70,8 @@ const ContactForm = () => {
           <Field
             type="text"
             name="number"
-            onChange={formikProps.handleChange}
+            value={formattedNumber}
+            onChange={(e) => handleChange(e, formikProps)}
           />
           <ErrorMessage className={style.error} name="number" component="span" />
           <button className={style.button} type="submit">Add Contact</button>
